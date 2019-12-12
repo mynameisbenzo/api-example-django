@@ -4,6 +4,10 @@ from social_django.models import UserSocialAuth
 
 from drchrono.endpoints import DoctorEndpoint
 
+import sys
+sys.path.insert(0, '..')
+from users.models import Doctor
+
 
 class SetupView(TemplateView):
     """
@@ -44,6 +48,6 @@ class DoctorWelcome(TemplateView):
         # Hit the API using one of the endpoints just to prove that we can
         # If this works, then your oAuth setup is working correctly.
         doctor_details = self.make_api_request()
+        Doctor.objects.find_or_create(doctor_details)
         kwargs['doctor'] = doctor_details
         return kwargs
-
