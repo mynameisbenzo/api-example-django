@@ -1,0 +1,64 @@
+{% load static %}
+<link href="{% static 'fullcalendar.css' %}" rel='stylesheet' />
+<link href="{% static 'daygrid.css' %}" rel='stylesheet' />
+<link href="{% static 'timegrid.css' %}" rel='stylesheet' />
+<link href="{% static 'list.css' %}" rel='stylesheet' />
+
+<script src="{% static 'fullcalendar.js' %}"></script>
+<script src="{% static 'daygrid.js' %}"></script>
+<script src="{% static 'timegrid.js' %}"></script>
+<script src="{% static 'list.js' %}"></script>
+
+<script>
+  function addMinutes(date, minutes){
+    return new Date(date + minutes*60000);
+  }
+  function formatDate(date){
+    var dd = String(date.getDate()).padStart(2, '0');
+    var mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = date.getFullYear();
+    var hh = date.getHours();
+    if(hh < 10) hh = "0" + hh;
+    var MM = date.getMinutes()
+    var ss = date.getSeconds()
+    if(MM == 0){
+      MM = "00"
+    }
+    if(ss == 0){
+      ss = "00"
+    }
+    return  yyyy + '-' + mm + '-' + dd + 'T' + hh + ":" + MM + ":" + ss;
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var container = document.getElementById('container-card');
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    var parsed_time = Date.parse("{{ appointments|get_item:'scheduled_time' }}");
+    var duration = {{ appointments|get_item:'duration' }};
+
+    var scheduled_start_time = new Date(parsed_time);
+    var scheduled_end_time = addMinutes(parsed_time, duration);
+
+    today = yyyy + '-' + mm + '-' + dd;
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      plugins: [ 'list' ],
+      schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+      height: container.height / 2,
+      defaultView: 'listWeek',
+      events:[
+        {
+          title: "test",
+          start: formatDate(scheduled_start_time),
+          end: formatDate(scheduled_end_time)
+        }
+      ]
+    });
+    container.height = calendar.height;
+    calendar.render();
+  });
+
+</script>

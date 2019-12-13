@@ -1,0 +1,15 @@
+{% extends 'doctor_base.html' %}
+{% block title %}Login{% endblock title %}
+{% block header %}
+<a class="navbar-brand col">Hello, Doctor!  Are you ready for the day?</a>
+{% endblock header %}
+
+{% block content %}
+{{ appointments }}
+<div class="row align-items-center">
+  <a class="offset-md-4 col-md-4 text-center mt-5 mb-5 btn btn-lg btn-primary"
+      href={% url "social:begin" "drchrono" %}>
+    <span>The doctor will see you now</span>
+  </a>
+</div>
+{% endblock content %}

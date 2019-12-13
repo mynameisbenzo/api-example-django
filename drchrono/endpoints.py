@@ -1,5 +1,6 @@
 import requests
 import logging
+import datetime
 
 
 class APIException(Exception): pass
@@ -13,11 +14,16 @@ class NotFound(APIException): pass
 
 class Conflict(APIException): pass
 
+class InternalServerError(APIException):
+    default_detail = "Something went awry"
+    default_code = "service_unavailable"
+
 
 ERROR_CODES = {
     403: Forbidden,
     404: NotFound,
     409: Conflict,
+    500: InternalServerError
 }
 
 
@@ -190,6 +196,7 @@ class AppointmentEndpoint(BaseEndpoint):
         List appointments on a given date, or between two dates
         """
         # Just parameter parsing & checking
+        # would be nice to know the format of the date
         params = params or {}
         if start and end:
             date_range = "{}/{}".format(start, end)

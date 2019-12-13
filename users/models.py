@@ -7,6 +7,14 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class DoctorManager(models.Manager):
+    # check if doctor is in the office
+    def doctor_in_office(self):
+        if self.filter(in_office=True):
+            return True
+        else:
+            return False
+
+    # find or create a doctor logging in
     def find_or_create(self,data):
         doctor = None
         try:

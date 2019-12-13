@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'drchrono',
     'social_django',
     'rest_framework',
+
     'users',
 )
 

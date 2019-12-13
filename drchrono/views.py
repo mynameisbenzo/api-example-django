@@ -1,20 +1,30 @@
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from social_django.models import UserSocialAuth
+from django.template.defaulttags import register
+from django.shortcuts import render_to_response
 
-from drchrono.endpoints import DoctorEndpoint
+from drchrono.endpoints import DoctorEndpoint, AppointmentEndpoint, AppointmentProfileEndpoint
+
+from datetime import datetime
 
 import sys
 sys.path.insert(0, '..')
 from users.models import Doctor
 
+###########################
+# template tags
+###########################
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
 
-class SetupView(TemplateView):
+
+class DoctorLogin(TemplateView):
     """
     The beginning of the OAuth sign-in flow. Logs a user into the kiosk, and saves the token.
     """
-    template_name = 'kiosk_setup.html'
-
+    template_name = 'doctor_login.html'
 
 class DoctorWelcome(TemplateView):
     """
@@ -31,7 +41,7 @@ class DoctorWelcome(TemplateView):
         access_token = oauth_provider.extra_data['access_token']
         return access_token
 
-    def make_api_request(self):
+    def get_doctor_details(self):
         """
         Use the token we have stored in the DB to make an API request and get doctor details. If this succeeds, we've
         proved that the OAuth setup is working
@@ -39,15 +49,30 @@ class DoctorWelcome(TemplateView):
         # We can create an instance of an endpoint resource class, and use it to fetch details
         access_token = self.get_token()
         api = DoctorEndpoint(access_token)
+
         # Grab the first doctor from the list; normally this would be the whole practice group, but your hackathon
         # account probably only has one doctor in it.
         return next(api.list())
+
+    def get_appointments(self):
+        access_token = self.get_token()
+        api = AppointmentEndpoint(access_token)
+        dt = datetime.now()
+        today = dt.strftime("%m-%d-%Y")
+        return next(api.list(date=today))
 
     def get_context_data(self, **kwargs):
         kwargs = super(DoctorWelcome, self).get_context_data(**kwargs)
         # Hit the API using one of the endpoints just to prove that we can
         # If this works, then your oAuth setup is working correctly.
-        doctor_details = self.make_api_request()
-        Doctor.objects.find_or_create(doctor_details)
-        kwargs['doctor'] = doctor_details
+        doctor_details = self.get_doctor_details()
+        appointments = self.get_appointments()
+        doctor = Doctor.objects.find_or_create(doctor_details)
+        kwargs['doctor'] = doctor
+        kwargs['appointments'] = appointments
+        kwargs['doctor_is_in'] = Doctor.objects.doctor_in_office()
+
         return kwargs
+
+class PatientSignIn(TemplateView):
+    template_name = 'patient_login.html'

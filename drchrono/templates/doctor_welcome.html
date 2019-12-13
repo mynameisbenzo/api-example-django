@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Welcome to drchrono</title>
-</head>
-<body>
-<h1>Welcome {{ doctor.first_name }} {{ doctor.last_name }}</h1>
-{{ doctor }}
-</body>
-</html>
+{% extends 'doctor_base.html' %}
+{% block title %}Appointments{% endblock title %}
+{% block header %}
+<a class="navbar-brand col">
+  <div>Welcome back, Dr. {{ doctor.last_name  }}.</div>
+  <div>Here are your appointments for today:</div>
+</a>
+{% endblock header %}
+
+{% block content %}
+
+<div id='calendar'></div>
+{% endblock content %}
