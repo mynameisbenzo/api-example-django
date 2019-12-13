@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^patient/sign_in',views.PatientSignIn.as_view(), name='sign_in'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('social.apps.django_app.urls', namespace='social')),
+    url(r'^ajax/get_patient_info/$', views.get_patient_info, name='get_patient_info')
 ]

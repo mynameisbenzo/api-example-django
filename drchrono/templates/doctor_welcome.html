@@ -1,5 +1,8 @@
 {% extends 'doctor_base.html' %}
 {% block title %}Appointments{% endblock title %}
+{% block extra %}
+{% include 'calendar.html' %}
+{% endblock extra %}
 {% block header %}
 <a class="navbar-brand col">
   <div>Welcome back, Dr. {{ doctor.last_name  }}.</div>
@@ -8,6 +11,5 @@
 {% endblock header %}
 
 {% block content %}
-
-<div id='calendar'></div>
+<div id='calendar' class='mt-1'></div>
 {% endblock content %}

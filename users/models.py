@@ -59,3 +59,18 @@ class Doctor(models.Model):
 
     def __str__(self):
         return "%s, %s" % (self.last_name, self.first_name)
+# implement appointment/patient models
+#
+# class Appointment(models.Model):
+#     scheduled_time = models.CharField(default="", max_length=50)
+#     duration = models.IntegerField(default=0)
+#     status = models.CharField(default="", max_length=15)
+#     drchrono_id = models.IntegerField(default=0, primary_key=True)
+#     patient_id = models.IntegerField(default=0)
+#     reason = models.CharField(default="", max_length=250)
+#
+# class Patient(models.Model):
+#     first_name = models.CharField(default="", max_length=50)
+#     middle_name = models.CharField(null=True, default=None, max_length=50)
+#     last_name = models.CharField(default="", max_length=50)
+#     drchrono_id = models.IntegerField(default=0, primary_key=True)

@@ -10,6 +10,29 @@
 <script src="{% static 'list.js' %}"></script>
 
 <script>
+  function setEventColor(status){
+    switch(status){
+      case "Arrived":
+        return "#D7E8BA";
+      case "Checked In":
+      case "Checked In Online":
+        return "#4DA1A9";
+      case "In Room":
+      case "In Session":
+        return "#2E5077";
+      case "Complete":
+        return "#5cb85c";
+      case "Confirmed":
+        return "#999999";
+      case "Not Confirmed":
+      case "Rescheduled":
+        return "#FFA630";
+      case "Cancelled":
+      case "No Show":
+        return "#611C35";
+    }
+  }
+
   function addMinutes(date, minutes){
     return new Date(date + minutes*60000);
   }
@@ -32,33 +55,44 @@
   document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var container = document.getElementById('container-card');
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
-
-    var parsed_time = Date.parse("{{ appointments|get_item:'scheduled_time' }}");
-    var duration = {{ appointments|get_item:'duration' }};
-
-    var scheduled_start_time = new Date(parsed_time);
-    var scheduled_end_time = addMinutes(parsed_time, duration);
-
-    today = yyyy + '-' + mm + '-' + dd;
     var calendar = new FullCalendar.Calendar(calendarEl, {
       plugins: [ 'list' ],
       schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
       height: container.height / 2,
       defaultView: 'listWeek',
-      events:[
-        {
-          title: "test",
-          start: formatDate(scheduled_start_time),
-          end: formatDate(scheduled_end_time)
-        }
-      ]
+      header: false,
     });
     container.height = calendar.height;
     calendar.render();
+    {% for appt in appointments %}
+      $.ajax({
+        url: '/ajax/get_patient_info/',
+        data: {
+          'patient': {{ appt|get_item:'patient' }}
+        },
+        dataType: 'json',
+        success: function (data) {
+          var title = (data["middle_name"]) ?
+            ( data["first_name"] + " " + data["middle_name"] + " " + data['last_name'] ) :
+            ( data["first_name"] +" " + data['last_name'] );
+          var reason_text = "{{ appt|get_item:'reason' }}";
+          if(reason_text){ reason_text = " - " + reason_text; }
+          title += reason_text;
+
+          var parsed_time = Date.parse("{{ appt|get_item:'scheduled_time' }}");
+          var duration = {{ appt|get_item:'duration' }};
+          var scheduled_start_time = new Date(parsed_time);
+          var scheduled_end_time = addMinutes(parsed_time, duration);
+          var eventColor = setEventColor("{{ appt|get_item:'status' }}")
+          calendar.addEvent({
+            title: title,
+            start: formatDate(scheduled_start_time),
+            end: formatDate(scheduled_end_time),
+            color: eventColor
+          });
+        }
+      });
+    {% endfor %}
   });
 
 </script>
